@@ -1,0 +1,49 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// ========================================================================
+// First Class: Engine
+// ========================================================================
+class Engine {
+private:
+    int horsepower;
+
+public:
+    Engine(int hp) {
+        horsepower = hp;
+    }
+} // <--- First error is located here
+
+// ========================================================================
+// Second Class: Car
+// ========================================================================
+class Car {
+public:
+    string model;
+    Engine carEngine;
+
+    // Constructor that initializes the model and the engine
+    Car(string m, int hp) : model(m), carEngine(hp) {}
+
+    void showDetails() {
+        // Attempting to print the car's details and engine horsepower
+        cout << "Model: " << model << endl;
+        cout << "Horsepower: " << carEngine.horsepower << endl;
+    }
+};
+
+// ========================================================================
+// Main Execution
+// ========================================================================
+int main() {
+    // Instantiate a Car object
+    Car myCar("Ford Mustang", 450);
+    
+    // Call the display function
+    myCar.showDetails();
+
+    return 0;
+}
+
