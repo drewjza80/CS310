@@ -1,0 +1,62 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// ========================================================================
+// Base Class: Appliance
+// ========================================================================
+class Appliance {
+public:
+    string brand;
+
+    Appliance(string b) : brand(b) {}
+
+    void powerOn() {
+        cout << brand << " appliance is now ON." << endl;
+    }
+};
+
+// ========================================================================
+// Child Class 1: Refrigerator
+// ========================================================================
+// ERROR 1: Private inheritance by default. 
+// In C++, if you omit the 'public' keyword, it defaults to private inheritance.
+class Refrigerator : Appliance { 
+public:
+    Refrigerator(string b) : Appliance(b) {}
+
+    void setTemperature() {
+        cout << "Setting temperature for the " << brand << " fridge." << endl;
+    }
+};
+
+// ========================================================================
+// Child Class 2: WashingMachine
+// ========================================================================
+class WashingMachine : public Appliance {
+public:
+    WashingMachine(string b) : Appliance(b) {}
+
+    void startCycle() {
+        // ERROR 2: Missing semicolon at the end of the statement below.
+        cout << "Washing cycle started for " << brand << endl
+    }
+};
+
+// ========================================================================
+// Main Execution
+// ========================================================================
+int main() {
+    Refrigerator myFridge("Samsung");
+    WashingMachine myWasher("LG");
+
+    // This call will fail due to Error 1 (Private inheritance)
+    myFridge.powerOn(); 
+
+    // This call will fail due to Error 2 (Missing semicolon)
+    myWasher.startCycle();
+
+    return 0;
+}
+
