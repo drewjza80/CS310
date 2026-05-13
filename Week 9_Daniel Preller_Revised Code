@@ -1,0 +1,403 @@
+/*
+ * Student Name: Daniel Preller
+ * File Name: Week9.cpp
+ * Date: 5/12/2026
+ * Notes: Debugged syntax/header errors, added missing breaks, 
+ * and corrected method calls.
+*/
+
+#include <iostream>
+#include <iomanip>
+#include <climits>   // FIX: Added for INT_MAX
+#include <algorithm> // FIX: Added for std::max()
+
+using namespace std;
+
+// Function prototypes for functions used within classes
+string boolToString(bool value, string trueString, string falseString);
+int getIntInRange(int min, int max);
+
+// Stores name and price information for menu items
+class MenuItem {
+private:
+    string name;
+    double price;
+
+public:
+    MenuItem() {// Default constructor
+        setName("Item");
+        setPrice(0);
+    }
+
+    MenuItem(string name, double price) {
+        setName(name);
+        setPrice(price);
+    }
+
+    // Set methods
+    void setName(string name) {
+        this->name = name;
+    }
+
+    void setPrice(double price) {
+        this->price = price;
+    }
+    // Get methods
+    string getName() {
+        return name;
+    }
+
+    double getPrice() {
+        return price;
+    }
+
+    // Prints the item as a line in a menu
+    void printBasicMenuLine() {
+        cout << setw(30) << left << name;
+        cout << "$" << fixed << setprecision(2) << price << endl;
+    }
+
+    // Prints the item as a detailed line in a menu
+    void printDetailedMenuLine() {
+        printBasicMenuLine();
+    }
+};
+
+// Represents a food item in a menu
+class FoodItem {
+private:
+    bool glutenFree = false;
+
+public:
+    // Default constructor
+    FoodItem(): MenuItem() {
+        glutenFree = false;
+    }
+
+    // Constructor matching that of superclass
+    FoodItem(string name, double price): MenuItem(name, price) {
+        glutenFree = false;
+    }
+
+    // Constructor for all fields
+    FoodItem(string name, double price, bool glutenFree): MenuItem(name, price) {
+        this->glutenFree = glutenFree;
+    }
+
+    // Prints the detailed menu line, including whether the item is gluten-free
+    void printDetailedMenuLine() {
+        cout << setw(20) << left << name;
+        cout << setw(15) << boolToString(glutenFree, "Yes", "No");
+        cout << "$" << fixed << setprecision(2) << price << endl;
+    }
+};
+
+// Represents a drink item in a menu
+class DrinkItem: public MenuItem {
+private:
+    double smallPrice;
+    double largePrice;
+
+public:
+    // Default constructor
+    DrinkItem(): DrinkItem("Item", 0) {}
+
+    // Constructor matching that of parent class
+    DrinkItem(string name, double price): MenuItem(name, price) {
+        smallPrice = max(price - 0.50, 0.0);
+        largePrice = price + 0.50;
+    }
+
+    // Constructor for all fields
+    DrinkItem(string name, double price, double smallPrice, double largePrice) : MenuItem(name, price) {
+        this->smallPrice = smallPrice;
+        this->largePrice = largePrice;
+    }
+
+    // Prints a detailed menu line, including prices for all sizes
+    void printDetailedMenuLine() {
+        cout << setw(20) << left << name;
+        cout << "$" << fixed << setprecision(2) << left << setw(9) << smallPrice;
+        cout << "$" << fixed << setprecision(2) << left << setw(9) << price;
+        cout << "$" << fixed << setprecision(2) << left << setw(9) << largePrice << endl;
+    }
+
+    // Get methods
+    double getSmallPrice() {
+        return smallPrice;
+    }
+
+    double getLargePrice() {
+        return largePrice;
+    }
+};
+
+// Menu class is used to make a menu of items and to order from it
+class Menu {
+private:
+    string name;
+    FoodItem foodItems[3];
+    DrinkItem drinkItems[2];
+
+public:
+
+    // Constructor using a name
+    Menu(string name) {
+        this->setName(name);
+    }
+
+    // Name set method
+    void setName(string name) {
+        this->name = name;
+    }
+
+    void setFoodItem(int itemNumber, FoodItem item) {
+        foodItems[itemNumber] = item;
+    }
+
+    void setDrinkItem(int itemNumber, DrinkItem item) {
+        drinkItems[itemNumber] = item;
+    }
+
+    // Get methods
+    string getName() {
+        return name;
+    }
+
+    // Prints the menu information
+    void printMenu() {
+        // Header
+        cout << "  " << name << " Menu:" << endl;
+        cout << "    " << setw(30) << left << "Item" << "Price" << endl;
+
+        int itemCounter = 1;
+        for (FoodItem item : foodItems) {
+            cout << "  " << itemCounter << " ";
+            item.printBasicMenuLine();
+            itemCounter++;
+        }
+        for (DrinkItem item : drinkItems) {
+            cout << "  " << itemCounter << " ";
+            item.printBasicMenuLine();
+            itemCounter++;
+        }
+        cout << endl;
+    }
+
+    // Prints the drink menu with details on sizes
+    void printDrinkMenu() {
+        // Header
+        cout << "  " << name << " Drink Menu:" << endl;
+        cout << "    " << setw(20) << left << "Item" << setw(10) << "Small" << setw(10) << "Regular"
+        << setw(10) << "Large" << endl;
+
+        int itemCounter = 1;
+        for (DrinkItem item : drinkItems) {
+            cout << "  " << itemCounter << " ";
+            item.printDetailedMenuLine(); // FIX: Changed from basic to detailed line
+            itemCounter++;
+        }
+    }
+
+    // Prints the food menu with details on whether items are gluten-free
+    void printFoodMenu() {
+        // Header
+        cout << "  " << name << " Food Menu:" << endl;
+        cout << "    " << setw(20) << left << "Item" << setw(15) << "Gluten-free" << setw(10) << "Price" << endl;
+
+        int itemCounter = 1;
+        for (FoodItem item : foodItems) {
+            cout << "  " << itemCounter << " ";
+            item.printDetailedMenuLine();
+            itemCounter++;
+        }
+    }
+
+    void orderItem(int itemNumber, int size, double& total) {
+        string itemName;
+        double itemPrice;
+        string sizeName = "";
+
+        itemNumber--;
+        if (itemNumber >= 0 && itemNumber <= 2) {
+            itemName = foodItems[itemNumber].getName();
+            itemPrice = foodItems[itemNumber].getPrice();
+        } else if (itemNumber >= 3 && itemNumber <= 4) {
+            itemNumber = itemNumber - 3;
+            itemName = drinkItems[itemNumber].getName();
+
+            switch (size) {
+                case 1:
+                    itemPrice = drinkItems[itemNumber].getSmallPrice();
+                    sizeName = "small ";
+                    break; // FIX: Added missing break to prevent fallthrough
+                default:
+                case 2:
+                    itemPrice = drinkItems[itemNumber].getPrice();
+                    sizeName = "regular ";
+                    break;
+                case 3:
+                    itemPrice = drinkItems[itemNumber].getLargePrice();
+                    sizeName = "large ";
+                    break;
+            }
+        } else {
+            throw invalid_argument("Invalid item number");
+        }
+
+        // Updates total and displays results
+        total += itemPrice;
+        cout << "\n  Added one " << sizeName << itemName << " to your order." << endl;
+        cout << "  Your total is now $" << fixed << setprecision(2) << total << endl;
+    }
+};
+
+// Function prototypes
+void mainMenuLoop(Menu& menu, double& total);
+void basicMenuLoop(Menu& menu, double& total);
+void foodMenuLoop(Menu& menu, double& total);
+void drinkMenuLoop(Menu& menu, double& total);
+
+int main() {
+    double total = 0.0;
+    string cafeName;
+
+    string foodItems[3] = {"Bagel", "Muffin", "Parfait"};
+    double foodPrices[3] = {3.00, 3.50, 4.00};
+    bool foodGlutenFreeStatus[3] = {false, false, true};
+
+    string drinkItems[2] = {"Coffee", "Tea"};
+    double drinkPrices[2] = {3.75, 3.50};
+
+
+    do {
+        cout << "\n\n  Please enter a cafe name: ";
+        getline(cin, cafeName);
+    }
+    while (cafeName.empty());
+
+    Menu menu(cafeName);
+
+    for (int i = 0; i < 3; i++) {
+        menu.setFoodItem(i, FoodItem(foodItems[i], foodPrices[i], foodGlutenFreeStatus[i]));
+    }
+    for (int i = 0; i < 2; i++) {
+        menu.setDrinkItem(i, DrinkItem(drinkItems[i], drinkPrices[i]));
+    }
+
+
+    cout << "  Welcome to " << menu.getName() << "!" << endl;
+
+    mainMenuLoop(menu, total);
+    
+    // FIX: Replaced non-standard getch() with portable cin.get()
+    cout << "Press Enter to exit...";
+    cin.ignore(INT_MAX, '\n');
+    cin.get();
+    
+    return 0;
+}
+
+void mainMenuLoop(Menu& menu, double& total) {
+    int selection;
+
+    bool continuing = true;
+    while (continuing) {
+        cout << "\n  Please enter a number to select an option:" << endl;
+        cout << "  0 Complete order" << endl;
+        cout << "  1 Display simple menu" << endl;
+        cout << "  2 Display detailed food menu" << endl;
+        cout << "  3 Display detailed drink menu" << endl;
+        cout << "  ";
+        selection = getIntInRange(0, 3);
+
+        switch (selection) {
+            case 0:
+                cout << "  Thank you for visiting " << menu.getName() << "! Your total is $" << fixed << setprecision(2) << total << endl;
+                continuing = false;
+                break;
+            default:
+            case 1:
+                basicMenuLoop(menu, total);
+                break;
+            case 2:
+                foodMenuLoop(menu, total);
+                break;
+            case 3:
+                drinkMenuLoop(menu, total);
+                break;
+        }
+    }
+}
+
+void basicMenuLoop(Menu& menu, double& total) {
+    while (true) {
+        cout << endl;
+        menu.printMenu();
+        cout << "  Enter an item number to add an item to your order." << endl;
+        cout << "  To go back, enter 0: ";
+
+        int itemSelection = getIntInRange(0, 5);
+        if (itemSelection == 0) {
+            break;
+        } else {
+            menu.orderItem(itemSelection, 2, total);
+        }
+    }
+}
+
+void foodMenuLoop(Menu& menu, double& total) {
+    while (true) {
+        cout << endl;
+        menu.printFoodMenu();
+        cout << "  Enter an item number to add an item to your order." << endl;
+        cout << "  To go back, enter 0: ";
+
+        int itemSelection = getIntInRange(0, 3);
+        if (itemSelection == 0) {
+            break;
+        } else {
+            menu.orderItem(itemSelection, 2, total);
+        }
+    }
+}
+
+void drinkMenuLoop(Menu& menu, double& total) {
+    while (true) {
+        cout << endl;
+        menu.printDrinkMenu();
+        cout << "  Enter an item number to add an item to your order." << endl;
+        cout << "  To go back, enter 0: ";
+
+        int itemSelection = getIntInRange(0, 2);
+        if (itemSelection == 0) {
+            break;
+        } else {
+            cout << "\n  Please select a size." << endl;
+            cout << "  Enter 1 for small, 2 for regular, and 3 for large: ";
+            int size = getIntInRange(1, 3);
+            menu.orderItem(itemSelection + 3, size, total);
+        }
+    }
+}
+
+int getIntInRange(int min, int max) {
+    int userInput;
+
+    while (!(cin >> userInput) || userInput < min || userInput > max) {
+        cout << "  Input error. Please try again: ";
+        cin.clear();
+        cin.ignore(INT_MAX, '\n');
+    }
+
+    cin.ignore(INT_MAX, '\n');
+    return userInput;
+}
+
+string boolToString(bool value, string trueString, string falseString) {
+    if (value) {
+        return trueString;
+    } else {
+        return falseString;
+    }
+}
