@@ -1,0 +1,22 @@
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int myValue = 42;
+
+    // Attempting to create a pointer and assign it the variable
+    // ERROR 1: Missing the address-of operator
+    int *ptr = myValue; 
+
+    cout << "The original value is: " << myValue << endl;
+
+    // Attempting to change the value of myValue using the pointer
+    // ERROR 2: Missing the dereference operator
+    ptr = 100; 
+
+    cout << "The new value is: " << myValue << endl;
+
+    return 0;
+}
+
