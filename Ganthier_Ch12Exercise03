@@ -1,0 +1,93 @@
+#include <iostream>
+#include <string>
+#include <iomanip>
+
+int main() {
+    int numCandidates = 0;
+
+    std::cout << "--- Local Election Tracker ---" << std::endl;
+
+    // Ask the user for the number of candidates
+    std::cout << "Enter the number of candidates: ";
+    std::cin >> numCandidates;
+
+    // Input validation to ensure a positive number
+    if (numCandidates <= 0) {
+        std::cout << "Error: Number of candidates must be greater than 0." << std::endl;
+        return 1;
+    }
+
+    // Dynamically allocate arrays based on user input
+    std::string* names = new std::string[numCandidates];
+    int* votes = new int[numCandidates];
+    
+    int totalVotes = 0;
+    int maxVotes = 0;
+    int winnerIndex = 0;
+
+    // 1. Gather input from the user
+    for (int i = 0; i < numCandidates; ++i) {
+        std::cout << "\nEnter the last name of candidate " << (i + 1) << ": ";
+        std::cin >> names[i];
+        
+        std::cout << "Enter the number of votes received by " << names[i] << ": ";
+        std::cin >> votes[i];
+
+        // Add to total votes
+        totalVotes += votes[i];
+
+        // Determine if this candidate is the current leader
+        if (votes[i] > maxVotes) {
+            maxVotes = votes[i];
+            winnerIndex = i;
+        }
+    }
+
+    // Prevent division by zero if total votes are 0
+    if (totalVotes == 0) {
+        std::cout << "\nNo votes were cast. Election is a tie at 0." << std::endl;
+        
+        // Clean up memory before exiting
+        delete[] names;
+        delete[] votes;
+        return 0;
+    }
+
+    // 2. Output the formatted results table
+    std::cout << "\n" << std::setfill('-') << std::setw(55) << "-" << std::endl;
+    std::cout << std::setfill(' '); // Reset fill to space
+    std::cout << std::left << std::setw(20) << "Candidate" 
+              << std::right << std::setw(15) << "Votes Received" 
+              << std::right << std::setw(20) << "% of Total Votes" << std::endl;
+    std::cout << std::setfill('-') << std::setw(55) << "-" << std::endl;
+    std::cout << std::setfill(' ');
+
+    // 3. Calculate and print individual candidate stats
+    for (int i = 0; i < numCandidates; ++i) {
+        // Calculate percentage (cast to double to prevent integer division)
+        double percentage = (static_cast<double>(votes[i]) / totalVotes) * 100.0;
+        
+        std::cout << std::left << std::setw(20) << names[i] 
+                  << std::right << std::setw(15) << votes[i] 
+                  << std::right << std::setw(19) << std::fixed << std::setprecision(2) << percentage << "%" << std::endl;
+    }
+
+    // 4. Output the totals and the winner
+    std::cout << std::setfill('-') << std::setw(55) << "-" << std::endl;
+    std::cout << std::setfill(' ');
+    std::cout << std::left << std::setw(20) << "Total" 
+              << std::right << std::setw(15) << totalVotes << std::endl;
+              
+    std::cout << "\nThe Winner of the Election is: **" << names[winnerIndex] << "**!" << std::endl;
+
+    // 5. Clean up dynamically allocated memory
+    delete[] names;
+    delete[] votes;
+    
+    // Best practice: set pointers to nullptr after deleting
+    names = nullptr;
+    votes = nullptr;
+
+    return 0;
+}
+
